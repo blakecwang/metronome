@@ -1,17 +1,34 @@
 // Execute this script once jQuery has loaded.
 $(function() {
-  // Load audio file to use for click.
-  var sound = new Audio("audio/1kHz_50ms_trimmed.mp3");
-  sound.preload = 'auto';
-  sound.load();
+
+
+  // Create an oscillator.
+  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+//  var osc = audioCtx.createOscillator();
+//  osc.connect(audioCtx.destination);
+//  osc.frequency.value = 880.0;
+//  osc.start(0.00);
+//  osc.stop(0.05);
+
+
+  for (i = 0; i < 100; i++) { 
+    var osc = audioCtx.createOscillator();
+    osc.connect(audioCtx.destination);
+    osc.frequency.value = 880.0;
+    x = i / 3;
+    osc.start(x);
+    osc.stop(x + 0.05);
+  }
+
+
 
   // Define variable to toggle when playing.
   var playing = false;
 
   // Play single click.
   function playClick() {
-    var click = sound.cloneNode();
-    click.play();
+    osc.start(0.00);
+    osc.stop(0.05);
   }
 
   // Play click repeatly at given bpm.
