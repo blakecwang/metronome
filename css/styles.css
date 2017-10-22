@@ -1,2 +1,7 @@
-* {
+body {
+  background-color: LightGray;
+}
+
+.input-row {
+  margin-bottom: 15px;
 }

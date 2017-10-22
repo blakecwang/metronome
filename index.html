@@ -12,22 +12,31 @@
 
 <div class="container">
   <div class="row">
-    <section class="col-xs-12">
-      <h1>Metronome<small>Keep it in the pocket.</small></h1>
-      <form class="form-inline">
-        <input class="form-control" type="text" placeholder="Tempo">
-        <input class="form-control" type="text" placeholder="Bars">
-        <div class="checkbox"> 
-          <label>
-            <input type="checkbox">
-            Play forevor
-          </label>
-        </div>
-        <input class="btn btn-default" type="submit" value="submit">
-      </form>
+    <div class="col-xs-12">
+      <h1>metronome<small>Keep it in the pocket.</small></h1>
+    </div>
+  </div>
+  <div class="row input-row">
+    <section class="col-xs-6">
+      <input class="form-control input-lg" type="text" placeholder="Tempo">
     </section>
-  </div><!-- row -->   
-</div><!-- content container -->
+    <section class="col-xs-6">
+      <input class="form-control input-lg" type="text" placeholder="Bars">
+    </section>
+  </div>
+  <div class="row">
+    <section class="col-xs-6">
+      <button id="back-btn" class="btn btn-primary btn-lg btn-block btn-white">
+        <span class="glyphicon glyphicon-step-backward"></span>
+      </button>
+    </section>
+    <section class="col-xs-6">
+      <button id="play-btn" class="btn btn-primary btn-lg btn-block">
+        <span class="glyphicon glyphicon-play"></span>
+      </button>
+    </section>
+  </div>
+</div>
   
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
