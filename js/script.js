@@ -1,42 +1,30 @@
 // Execute this script once jQuery has loaded.
 $(function() {
+  var tempo = 60;                // Initialize tempo.
+  var sPeriod = 60 / tempo;      // Calculate period in seconds.
+  var msPeriod = 1000 * sPeriod; // Calculate period in miliseconds.
+  var clickIndex = 0;            // Define current place in queue.
+  var playing = false;           // Define variable to toggle when playing.
+  var audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // Initialize an AudioContext object.
+  const clickFrequency = 666;    // Set click pitch;
+  const clickDuration = 0.05;    // Set click duration;
 
-
-  // Create an oscillator.
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-//  var osc = audioCtx.createOscillator();
-//  osc.connect(audioCtx.destination);
-//  osc.frequency.value = 880.0;
-//  osc.start(0.00);
-//  osc.stop(0.05);
-
-
-  for (i = 0; i < 100; i++) { 
+  // Schedule a single click.
+  function scheduleClick() {
+    var clickTime = (clickIndex * sPeriod) + (sPeriod / 2);
     var osc = audioCtx.createOscillator();
     osc.connect(audioCtx.destination);
-    osc.frequency.value = 880.0;
-    x = i / 3;
-    osc.start(x);
-    osc.stop(x + 0.05);
+    osc.frequency.value = clickFrequency;
+    osc.start(clickTime);
+    osc.stop(clickTime + clickDuration);
+    clickIndex++;
   }
 
-
-
-  // Define variable to toggle when playing.
-  var playing = false;
-
-  // Play single click.
-  function playClick() {
-    osc.start(0.00);
-    osc.stop(0.05);
-  }
-
-  // Play click repeatly at given bpm.
+  // Schedule clicks every period.
   var interval = null;
-  function play(bpm) {
+  function play() {
     playing = true;
-    var period = 60000 / bpm;
-    interval = setInterval(playClick, period)
+    interval = setInterval(scheduleClick, msPeriod);
   }
 
   // Pause.
@@ -46,11 +34,11 @@ $(function() {
   }
 
   // Toggle playing.
-  function togglePlaying(bpm) {
+  function togglePlaying() {
     if (playing) {
       pause();
     } else {
-      play(bpm);
+      play();
     }
   }
 
@@ -58,6 +46,6 @@ $(function() {
   $("#play-btn").click(function() {
     $(this).find("span").toggleClass("glyphicon-play");
     $(this).find("span").toggleClass("glyphicon-pause");
-    togglePlaying(120);
+    togglePlaying();
   });
 });
