@@ -1,21 +1,18 @@
 // Execute this script once jQuery has loaded.
 $(function() {
-  const clickFrequency = 666;    // Set click pitch;
-  const clickDuration = 0.05;    // Set click duration;
+  const clickFrequency = 666; // Set click pitch;
+  const clickDuration = 0.05; // Set click duration;
 
-  var tempo = 60;                // Initialize tempo.
-  var sPeriod = 60 / tempo;      // Calculate period in seconds.
-  var msPeriod = 1000 * sPeriod; // Calculate period in miliseconds.
-  var clickIndex = 0;            // Define current place in queue.
-  var playing = false;           // Define variable to toggle when playing.
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // Initialize an AudioContext object.
+  var tempo, sPeriod, msPeriod, audioCtx, clickIndex;
+  var playing = false;
 
+  // Reset the audio context clock and the click index back to zero.
   function refreshAudioCtx() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     clickIndex = 0;
   }
 
-  // Schedule a single click.
+  // Schedule a single click period/2 in the future.
   function scheduleClick() {
     var clickTime = (clickIndex * sPeriod) + (sPeriod / 2);
     var osc = audioCtx.createOscillator();
@@ -34,7 +31,7 @@ $(function() {
     interval = setInterval(scheduleClick, msPeriod);
   }
 
-  // Pause.
+  // Flip the boolean and stop scheduling clicks.
   function pause() {
     playing = false;
     clearInterval(interval);
@@ -49,10 +46,22 @@ $(function() {
     }
   }
 
+  // Calculate the period from tempo in s and ms.
+  function calculatePeriod() {
+    sPeriod = 60 / tempo;
+    msPeriod = 1000 * sPeriod;
+  }
+
   // Define play button behavior.
   $("#play-btn").click(function() {
-    $(this).find("span").toggleClass("glyphicon-play");
-    $(this).find("span").toggleClass("glyphicon-pause");
-    togglePlaying();
+    tempo = parseInt($("#tempo-input").val());
+    if (tempo) {
+      $(this).find("span").toggleClass("glyphicon-play");
+      $(this).find("span").toggleClass("glyphicon-pause");
+      calculatePeriod();
+      togglePlaying();
+    } else {
+      alert("Please enter a tempo!");
+    }
   });
 });
