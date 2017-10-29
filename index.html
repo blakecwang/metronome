@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
-  <title>Bootstrap</title>
+  <title>metronome</title>
 </head>
 <body>
 
@@ -16,24 +16,24 @@
       <h1>metronome<small>Keep it in the pocket.</small></h1>
     </div>
   </div>
-  <div class="row input-row">
+  <div id="master" class="row input-row">
     <section class="col-xs-6">
-      <input id="tempo-input" class="form-control input-lg" type="text" placeholder="Tempo">
+      <input class="form-control input-lg tempo-input" type="text" placeholder="Tempo">
     </section>
     <section class="col-xs-6">
-      <input id="bars-input" class="form-control input-lg" type="text" placeholder="Bars">
+      <input class="form-control input-lg bars-input" type="text" placeholder="Bars">
     </section>
   </div>
   <div class="row">
-    <section class="col-xs-6">
-      <button id="back-btn" class="btn btn-primary btn-lg btn-block btn-white">
-        <span class="glyphicon glyphicon-step-backward"></span>
-      </button>
-    </section>
-    <section class="col-xs-6">
-      <button id="play-btn" class="btn btn-primary btn-lg btn-block">
-        <span class="glyphicon glyphicon-play"></span>
-      </button>
+    <section class="col-xs-12">
+      <div class="btn-group pull-right" role="group">
+        <button id="add-row-btn" class="btn btn-default btn-lg" type="button">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button id="play-btn" class="btn btn-primary btn-lg" type="button">
+          <span class="glyphicon glyphicon-play"></span>
+        </button>
+      </div>
     </section>
   </div>
 </div>
