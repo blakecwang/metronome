@@ -2,36 +2,42 @@
 $(function() {
 
   // TESTING ONLY!
-  $("#master").find(".tempo-input").val("60");
-  $("#master").find(".bars-input").val("1");
-  var newRow = $("#master").clone();
-  newRow.find(".tempo-input").val("120");
-  newRow.insertAfter("div.input-row:last");
-  var newRow = $("#master").clone();
-  newRow.find(".tempo-input").val("180");
-  newRow.insertAfter("div.input-row:last");
+  $("#master").find(".tempo-input").val("200");
+  $("#master").find(".bars-input").val("3");
+//  var newRow = $("#master").clone();
+//  newRow.find(".tempo-input").val("120");
+//  newRow.insertAfter("div.input-row:last");
+//  var newRow = $("#master").clone();
+//  newRow.find(".tempo-input").val("240");
+//  newRow.insertAfter("div.input-row:last");
+//  var newRow = $("#master").clone();
+//  newRow.find(".tempo-input").val("120");
+//  newRow.insertAfter("div.input-row:last");
+//  var newRow = $("#master").clone();
+//  newRow.find(".tempo-input").val("60");
+//  newRow.insertAfter("div.input-row:last");
 
   // Set values for click frequency and duration.
   const clickFrequency = 666;
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var sPeriod, msPeriod, audioCtx, clickIndex;
+  var audioCtx, clickIndex, clickQ, schedulerQ, tempos, bars, period;
   var playing = false;
-  var tempos = [];
-  var bars = [];
-  var clickQueue = [];
-  var schedulerQueue = [];
 
   // Reset the audio context clock and the click index back to zero.
   function refreshAudioCtx() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     clickIndex = 0;
+    clickQ = [];
+    schedulerQ = [];
+    tempos = [];
+    bars = [];
   }
 
   // Schedule a single click period/2 in the future.
   function scheduleClick() {
-    var clickTime = clickQueue[clickIndex];
+    var clickTime = clickQ[clickIndex];
     var osc = audioCtx.createOscillator();
     osc.connect(audioCtx.destination);
     osc.frequency.value = clickFrequency;
@@ -39,15 +45,18 @@ $(function() {
     osc.stop(clickTime + clickDuration);
   }
 
-  // Schedule clicks every period.
+  // Schedule a click every period.
   function play() {
     setTimeout(function () {
-      if (playing && schedulerQueue[clickIndex]) {
+      if (playing && clickIndex < schedulerQ.length) {
         scheduleClick();
         clickIndex++;
         play();
+      } else {
+        playing = false;
+        toggleIcon();
       }
-    }, schedulerQueue[clickIndex]);
+    }, schedulerQ[clickIndex]);
   }
 
   // Round to 3 decimal places.
@@ -56,44 +65,38 @@ $(function() {
   }
 
   // Assemble click queue with absolute times in s.
-  function assembleClickQueue() {
+  function assembleClickQ() {
     calculatePeriod(tempos[0]);
-    var time = sPeriod;
-    clickQueue.push(round3(time));
+    var time = period;
+    clickQ.push(round3(time));
 
     var i = 0;
     tempos.forEach(function(tempo) {
       calculatePeriod(tempo);
       var j = 0;
       while (j < (bars[i] * 4)) {
-        time += sPeriod;
-        clickQueue.push(round3(time));
+        time += period;
+        clickQ.push(round3(time));
         j++;
       }
       i++;
     });
-    clickQueue.splice(-1, 1);
+    clickQ.splice(-1, 1);
   }
 
   // Assemble scheduler queue with relative times in ms.
-  function assembleSchedulerQueue() {
-    var time0 = 500 * clickQueue[0];
-    schedulerQueue.push(Math.round(time0));
-    for (i = 1; i < clickQueue.length; i++) { 
-      var time = 1000 * (clickQueue[i] - clickQueue[i - 1]);
-      schedulerQueue.push(Math.round(time));
+  function assembleSchedulerQ() {
+    var time0 = 500 * clickQ[0];
+    schedulerQ.push(Math.round(time0));
+    for (i = 1; i < clickQ.length; i++) { 
+      var time = 1000 * (clickQ[i] - clickQ[i - 1]);
+      schedulerQ.push(Math.round(time));
     }
   }
 
-  // Flip the boolean and stop scheduling clicks.
-  function pause() {
-    playing = false;
-  }
-
-  // Calculate the period from tempo in s and ms.
+  // Calculate the period from tempo in s.
   function calculatePeriod(tempo) {
-    sPeriod = 60 / tempo;
-    msPeriod = 1000 * sPeriod;
+    period = 60 / tempo;
   }
 
   // Toggle the play/pause icon.
@@ -103,7 +106,7 @@ $(function() {
   }
 
   // Read values from inputs and add them to tempos and bars arrays.
-  function readInput() {
+  function readInputs() {
     $(".tempo-input").each(function() {
       tempos.push(parseInt($(this).val()));
     });
@@ -114,15 +117,17 @@ $(function() {
 
   // Define play button behavior.
   $("#play-btn").click(function() {
-    playing = true;
-    refreshAudioCtx();
-    toggleIcon();
-    readInput();
-    assembleClickQueue();
-    assembleSchedulerQueue();
-    play();
-// console.log(clickQueue);
-// console.log(schedulerQueue);
+    if (playing) {
+      playing = false;
+    } else {
+      playing = true;
+      toggleIcon();
+      refreshAudioCtx();
+      readInputs();
+      assembleClickQ();
+      assembleSchedulerQ();
+      play();
+    }
   });
 
   // Define add row button behavior.
