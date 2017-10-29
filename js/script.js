@@ -55,23 +55,34 @@ $(function() {
     return Math.round(num * 1000) / 1000;
   }
 
-  // Assemble click queue with absolute times and scheduler queue with
-  // relative times (periods).
-  function assembleQueues() {
+  // Assemble click queue with absolute times in s.
+  function assembleClickQueue() {
+    calculatePeriod(tempos[0]);
+    var time = sPeriod;
+    clickQueue.push(round3(time));
+
     var i = 0;
-    var time = 0;
     tempos.forEach(function(tempo) {
       calculatePeriod(tempo);
       var j = 0;
       while (j < (bars[i] * 4)) {
-        prevTime = time;
         time += sPeriod;
         clickQueue.push(round3(time));
-        schedulerQueue.push(Math.round(500 * (time - prevTime)));
         j++;
       }
       i++;
     });
+    clickQueue.splice(-1, 1);
+  }
+
+  // Assemble scheduler queue with relative times in ms.
+  function assembleSchedulerQueue() {
+    var time0 = 500 * clickQueue[0];
+    schedulerQueue.push(Math.round(time0));
+    for (i = 1; i < clickQueue.length; i++) { 
+      var time = 1000 * (clickQueue[i] - clickQueue[i - 1]);
+      schedulerQueue.push(Math.round(time));
+    }
   }
 
   // Flip the boolean and stop scheduling clicks.
@@ -107,10 +118,11 @@ $(function() {
     refreshAudioCtx();
     toggleIcon();
     readInput();
-    assembleQueues();
-//    play();
- console.log(clickQueue);
- console.log(schedulerQueue);
+    assembleClickQueue();
+    assembleSchedulerQueue();
+    play();
+// console.log(clickQueue);
+// console.log(schedulerQueue);
   });
 
   // Define add row button behavior.
