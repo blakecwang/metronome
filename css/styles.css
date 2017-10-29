@@ -1,7 +1,18 @@
 body {
-  background-color: LightGray;
+  background-color: Black;
+  padding-top: 15px;
 }
 
 .input-row {
   margin-bottom: 15px;
+}
+
+.btn-circle {
+  width: 300px;
+  height: 300px;
+  border-radius: 150px;
+  text-align: center;
+  font-size: 200px;
+  padding-top: 35px;
+  padding-left: 35px;
 }
