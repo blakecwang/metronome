@@ -14,8 +14,6 @@ $(function() {
     clickIndex = 0;
     clickQ = [];
     schedulerQ = [];
-    tempos = [];
-    bars = [];
   }
 
   // Schedule a single click period/2 in the future.
@@ -90,6 +88,8 @@ $(function() {
 
   // Read values from inputs and add them to tempos and bars arrays.
   function readInputs() {
+    tempos = [];
+    bars = [];
     $(".tempo-input").each(function() {
       tempos.push(parseInt($(this).val()));
     });
@@ -98,18 +98,41 @@ $(function() {
     });
   }
 
+  // Make sure none of the inputs are blank.
+  function checkInputs() {
+    var containsInput = false;
+    for (i = 0; i < tempos.length; i++) { 
+      if ((tempos[i] && !bars[i]) ||
+          (!tempos[i] && bars[i])) {
+        return false;
+      }
+      if (tempos[i]) {
+        containsInput = true;
+      }
+    }
+    if (containsInput) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Define play button behavior.
   $("#play-btn").click(function() {
     if (playing) {
       playing = false;
     } else {
-      playing = true;
-      toggleIcon();
-      refreshAudioCtx();
       readInputs();
-      assembleClickQ();
-      assembleSchedulerQ();
-      play();
+      if (checkInputs()) {
+        playing = true;
+        refreshAudioCtx();
+        toggleIcon();
+        assembleClickQ();
+        assembleSchedulerQ();
+        play();
+      } else {
+        alert("Invalid inputs!");
+      }
     }
   });
 
