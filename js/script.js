@@ -58,6 +58,7 @@ $(function() {
       }
     }, schedulerQ[clickIndex]);
   }
+        toggleIcon();
 
   // Round to 3 decimal places.
   function round3(num) {
