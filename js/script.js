@@ -1,22 +1,5 @@
 // Execute this script once jQuery has loaded.
 $(function() {
-
-  // TESTING ONLY!
-  $("#master").find(".tempo-input").val("200");
-  $("#master").find(".bars-input").val("3");
-//  var newRow = $("#master").clone();
-//  newRow.find(".tempo-input").val("120");
-//  newRow.insertAfter("div.input-row:last");
-//  var newRow = $("#master").clone();
-//  newRow.find(".tempo-input").val("240");
-//  newRow.insertAfter("div.input-row:last");
-//  var newRow = $("#master").clone();
-//  newRow.find(".tempo-input").val("120");
-//  newRow.insertAfter("div.input-row:last");
-//  var newRow = $("#master").clone();
-//  newRow.find(".tempo-input").val("60");
-//  newRow.insertAfter("div.input-row:last");
-
   // Set values for click frequency and duration.
   const clickFrequency = 666;
   const clickDuration = 0.05;
@@ -58,7 +41,6 @@ $(function() {
       }
     }, schedulerQ[clickIndex]);
   }
-        toggleIcon();
 
   // Round to 3 decimal places.
   function round3(num) {
@@ -136,5 +118,13 @@ $(function() {
     var newRow = $("#master").clone();
     newRow.find("input").val("");
     newRow.insertAfter("div.input-row:last");
+  });
+
+  // Define refresh button behavior.
+  $("#refresh-btn").click(function() {
+    var newRow = $("#master").clone();
+    newRow.find("input").val("");
+    $(".input-row").remove();
+    newRow.insertBefore("div.row:first");
   });
 });
