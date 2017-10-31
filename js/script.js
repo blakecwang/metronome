@@ -5,7 +5,7 @@ $(function() {
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var audioCtx, queue, tempos, bars, timer;
+  var audioCtx, queue, tempos, bars, timer, index, interval;
   var playing = false;
 
   // Define play button behavior.
@@ -24,8 +24,12 @@ $(function() {
       playing = true;
       refreshAudioCtx();
       toggleIcon();
-      buildQueue();
-      initQueue();
+      if (bars[0]) {
+        buildQueue();
+        initQueue();
+      } else {
+        initIndefinite();
+      }
     } else {
       alert("Invalid input.");
     }
@@ -36,6 +40,7 @@ $(function() {
     playing = false;
     toggleIcon();
     clearTimeout(timer);
+    clearInterval(interval);
     audioCtx.close();
   }
 
@@ -51,8 +56,11 @@ $(function() {
     });
   }
 
-  // Make sure none of the inputs are blank.
+  // Make sure inputs are valid.
   function validateInputs() {
+    if (tempos.length == 1 && tempos[0]) {
+      return true;
+    }
     var containsInput = false;
     for (i = 0; i < tempos.length; i++) { 
       if ((tempos[i] && !bars[i]) ||
@@ -70,9 +78,10 @@ $(function() {
     }
   }
 
-  // Reset the audio context clock and the click index back to zero.
+  // Reset the audio context clock and the index back to zero.
   function refreshAudioCtx() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    index = 0;
     queue = [];
   }
 
@@ -87,7 +96,7 @@ $(function() {
     var i = 0;
     var t = 0;
     tempos.forEach(function(tempo) {
-      period = 60 / tempo;
+      var period = 60 / tempo;
       var j = 0;
       while (j < (bars[i] * 4)) {
         queue.push(round3(t));
@@ -105,6 +114,20 @@ $(function() {
     });
     tLast = queue[queue.length - 1] * 1000;
     timer = setTimeout(stop, tLast + 100);
+  }
+
+  // Schedule a batch clicks at a time.
+  function initIndefinite() {
+    var batch = index + 500;
+    var period = 60 / tempos[0];
+    while (playing && index < batch) {
+      scheduleClick(index * period);
+      index++;
+    }
+    var msPeriod = 1000 * period;
+    timer = setTimeout(function() {
+      interval = setInterval(initIndefinite, msPeriod * batch);
+    }, msPeriod / 2);
   }
 
   // Schedule a click at time t.

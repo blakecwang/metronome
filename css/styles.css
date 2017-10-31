@@ -12,10 +12,6 @@ body {
   color: White;
 }
 
-.btn:active {
-  background-color: HotPink;
-}
-
 .btn-lg {
   height: 50px;
   width: 40px;
@@ -39,8 +35,8 @@ body {
   border-radius: 160px;
   text-align: center;
   font-size: 100px;
-  padding-top: 28px;
-  padding-left: 12px;
+  padding-top: 26px;
+  padding-left: 10px;
 }
 
 .btn-circle:hover {
