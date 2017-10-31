@@ -1,11 +1,11 @@
 // Execute this script once jQuery has loaded.
 $(function() {
   // Set values for click frequency and duration.
-  const clickFrequency = 666;
+  const clickFrequency = 880;
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var clickIndex, queue, tempos, bars, period;
+  var queue, tempos, bars, period;
   var playing = false;
   var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -43,7 +43,6 @@ $(function() {
   function refreshAudioCtx() {
     audioCtx.close();
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    clickIndex = 0;
     queue = [];
   }
 
@@ -54,20 +53,18 @@ $(function() {
   }
 
   // Schedule a single click period/2 in the future.
-  function scheduleClick() {
-    var clickTime = queue[clickIndex];
+  function scheduleClick(t) {
     var osc = audioCtx.createOscillator();
     osc.connect(audioCtx.destination);
     osc.frequency.value = clickFrequency;
-    osc.start(clickTime);
-    osc.stop(clickTime + clickDuration);
+    osc.start(t);
+    osc.stop(t + clickDuration);
   }
 
   // Init queue.
   function init() {
     queue.forEach(function(t) {
-      scheduleClick();
-      clickIndex++;
+      scheduleClick(t);
     });
   }
 
