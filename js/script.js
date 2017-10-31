@@ -5,14 +5,13 @@ $(function() {
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var queue, tempos, bars, period;
+  var audioCtx, queue, tempos, bars, period;
   var playing = false;
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   // Define play button behavior.
   $("#play-btn").click(function() {
     if (playing) {
-      pause();
+      stop();
     } else {
       play();
     }
@@ -33,23 +32,22 @@ $(function() {
   }
 
   // Pause the metronome.
-  function pause() {
+  function stop() {
     playing = false;
-    refreshAudioCtx();
+    audioCtx.close();
     toggleIcon();
   }
 
   // Reset the audio context clock and the click index back to zero.
   function refreshAudioCtx() {
-    audioCtx.close();
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     queue = [];
   }
 
-  // Toggle the play/pause icon.
+  // Toggle the play/stop icon.
   function toggleIcon() {
     $("#play-btn").find("span").toggleClass("glyphicon-play");
-    $("#play-btn").find("span").toggleClass("glyphicon-pause");
+    $("#play-btn").find("span").toggleClass("glyphicon-stop");
   }
 
   // Schedule a single click period/2 in the future.
@@ -66,6 +64,8 @@ $(function() {
     queue.forEach(function(t) {
       scheduleClick(t);
     });
+    tLast = queue[queue.length - 1] * 1000;
+    setTimeout(stop, tLast + 100);
   }
 
   // Round to 3 decimal places.
