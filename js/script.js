@@ -5,20 +5,57 @@ $(function() {
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var audioCtx, clickIndex, clickQ, schedulerQ, tempos, bars, period;
+  var clickIndex, queue, tempos, bars, period;
   var playing = false;
+  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Define play button behavior.
+  $("#play-btn").click(function() {
+    if (playing) {
+      pause();
+    } else {
+      play();
+    }
+  });
+
+  // Build queue of clicks and init.
+  function play() {
+    readInputs();
+    if (validateInputs()) {
+      playing = true;
+      refreshAudioCtx();
+      toggleIcon();
+      buildQueue();
+      init();
+    } else {
+      alert("Invalid input.");
+    }
+  }
+
+  // Pause the metronome.
+  function pause() {
+    playing = false;
+    refreshAudioCtx();
+    toggleIcon();
+  }
 
   // Reset the audio context clock and the click index back to zero.
   function refreshAudioCtx() {
+    audioCtx.close();
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     clickIndex = 0;
-    clickQ = [];
-    schedulerQ = [];
+    queue = [];
+  }
+
+  // Toggle the play/pause icon.
+  function toggleIcon() {
+    $("#play-btn").find("span").toggleClass("glyphicon-play");
+    $("#play-btn").find("span").toggleClass("glyphicon-pause");
   }
 
   // Schedule a single click period/2 in the future.
   function scheduleClick() {
-    var clickTime = clickQ[clickIndex];
+    var clickTime = queue[clickIndex];
     var osc = audioCtx.createOscillator();
     osc.connect(audioCtx.destination);
     osc.frequency.value = clickFrequency;
@@ -26,18 +63,12 @@ $(function() {
     osc.stop(clickTime + clickDuration);
   }
 
-  // Schedule a click every period.
-  function play() {
-    setTimeout(function () {
-      if (playing && clickIndex < schedulerQ.length) {
-        scheduleClick();
-        clickIndex++;
-        play();
-      } else {
-        playing = false;
-        toggleIcon();
-      }
-    }, schedulerQ[clickIndex]);
+  // Init queue.
+  function init() {
+    queue.forEach(function(t) {
+      scheduleClick();
+      clickIndex++;
+    });
   }
 
   // Round to 3 decimal places.
@@ -46,44 +77,24 @@ $(function() {
   }
 
   // Assemble click queue with absolute times in s.
-  function assembleClickQ() {
-    calculatePeriod(tempos[0]);
-    var time = period;
-    clickQ.push(round3(time));
-
+  function buildQueue() {
     var i = 0;
+    var t = 0;
     tempos.forEach(function(tempo) {
       calculatePeriod(tempo);
       var j = 0;
       while (j < (bars[i] * 4)) {
-        time += period;
-        clickQ.push(round3(time));
+        queue.push(round3(t));
+        t += period;
         j++;
       }
       i++;
     });
-    clickQ.splice(-1, 1);
-  }
-
-  // Assemble scheduler queue with relative times in ms.
-  function assembleSchedulerQ() {
-    var time0 = 500 * clickQ[0];
-    schedulerQ.push(Math.round(time0));
-    for (i = 1; i < clickQ.length; i++) { 
-      var time = 1000 * (clickQ[i] - clickQ[i - 1]);
-      schedulerQ.push(Math.round(time));
-    }
   }
 
   // Calculate the period from tempo in s.
   function calculatePeriod(tempo) {
     period = 60 / tempo;
-  }
-
-  // Toggle the play/pause icon.
-  function toggleIcon() {
-    $("#play-btn").find("span").toggleClass("glyphicon-play");
-    $("#play-btn").find("span").toggleClass("glyphicon-pause");
   }
 
   // Read values from inputs and add them to tempos and bars arrays.
@@ -99,7 +110,7 @@ $(function() {
   }
 
   // Make sure none of the inputs are blank.
-  function checkInputs() {
+  function validateInputs() {
     var containsInput = false;
     for (i = 0; i < tempos.length; i++) { 
       if ((tempos[i] && !bars[i]) ||
@@ -116,25 +127,6 @@ $(function() {
       return false;
     }
   }
-
-  // Define play button behavior.
-  $("#play-btn").click(function() {
-    if (playing) {
-      playing = false;
-    } else {
-      readInputs();
-      if (checkInputs()) {
-        playing = true;
-        refreshAudioCtx();
-        toggleIcon();
-        assembleClickQ();
-        assembleSchedulerQ();
-        play();
-      } else {
-        alert("Invalid inputs!");
-      }
-    }
-  });
 
   // Define add row button behavior.
   $("#add-row-btn").click(function() {
