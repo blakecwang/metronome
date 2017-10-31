@@ -7,21 +7,62 @@ body {
   margin-bottom: 15px;
 }
 
+.btn {
+  background-color: Black;
+  color: White;
+}
+
+.btn:active {
+  background-color: HotPink;
+}
+
+.btn-lg {
+  height: 70px;
+  width: 60px;
+  font-size: 60px;
+  text-align: left;
+  padding: 0px;
+  margin-right: 30px;
+  margin-top: 10px;
+}
+
+.btn-lg:hover {
+  background-color: Black;
+  border: none;
+  color: HotPink;
+}
+
 .btn-circle {
+  border: 2px solid White;
   margin-top: 30px;
   width: 320px;
   height: 320px;
   border-radius: 160px;
   text-align: center;
   font-size: 100px;
-  padding-top: 25px;
-  padding-left: 25px;
+  padding-top: 28px;
+  padding-left: 12px;
+}
+
+.btn-circle:hover {
+  border-color: HotPink;
+  color: HotPink;
+  background-color: Black;
 }
 
 input[type='tel'] {
+  background-color: Black;
+  color: White;
+  border: 2px solid White;
   font-size: 50px;
   font-weight: bold;
   text-align: center;
   height: 70px;
   padding: 0px;
+}
+
+input[type='tel']:focus {
+  border-color: HotPink;
+  box-shadow: none;
+  outline: 0 none;
 }
