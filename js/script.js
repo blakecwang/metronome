@@ -5,7 +5,7 @@ $(function() {
   const clickDuration = 0.05;
 
   // Initialize global variables.
-  var audioCtx, queue, tempos, bars, period;
+  var audioCtx, queue, tempos, bars, timer;
   var playing = false;
 
   // Define play button behavior.
@@ -17,7 +17,7 @@ $(function() {
     }
   });
 
-  // Build queue of clicks and init.
+  // Read input, build queue of clicks and init.
   function play() {
     readInputs();
     if (validateInputs()) {
@@ -25,7 +25,7 @@ $(function() {
       refreshAudioCtx();
       toggleIcon();
       buildQueue();
-      init();
+      initQueue();
     } else {
       alert("Invalid input.");
     }
@@ -34,64 +34,9 @@ $(function() {
   // Pause the metronome.
   function stop() {
     playing = false;
-    audioCtx.close();
     toggleIcon();
-  }
-
-  // Reset the audio context clock and the click index back to zero.
-  function refreshAudioCtx() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    queue = [];
-  }
-
-  // Toggle the play/stop icon.
-  function toggleIcon() {
-    $("#play-btn").find("span").toggleClass("glyphicon-play");
-    $("#play-btn").find("span").toggleClass("glyphicon-stop");
-  }
-
-  // Schedule a single click period/2 in the future.
-  function scheduleClick(t) {
-    var osc = audioCtx.createOscillator();
-    osc.connect(audioCtx.destination);
-    osc.frequency.value = clickFrequency;
-    osc.start(t);
-    osc.stop(t + clickDuration);
-  }
-
-  // Init queue.
-  function init() {
-    queue.forEach(function(t) {
-      scheduleClick(t);
-    });
-    tLast = queue[queue.length - 1] * 1000;
-    setTimeout(stop, tLast + 100);
-  }
-
-  // Round to 3 decimal places.
-  function round3(num) {
-    return Math.round(num * 1000) / 1000;
-  }
-
-  // Assemble click queue with absolute times in s.
-  function buildQueue() {
-    var i = 0;
-    var t = 0;
-    tempos.forEach(function(tempo) {
-      calculatePeriod(tempo);
-      var j = 0;
-      while (j < (bars[i] * 4)) {
-        queue.push(round3(t));
-        t += period;
-        j++;
-      }
-      i++;
-    });
-  }
-
-  // Calculate the period from tempo in s.
-  function calculatePeriod(tempo) {
-    period = 60 / tempo;
+    clearTimeout(timer);
+    audioCtx.close();
   }
 
   // Read values from inputs and add them to tempos and bars arrays.
@@ -123,6 +68,57 @@ $(function() {
     } else {
       return false;
     }
+  }
+
+  // Reset the audio context clock and the click index back to zero.
+  function refreshAudioCtx() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    queue = [];
+  }
+
+  // Toggle the play/stop icon.
+  function toggleIcon() {
+    $("#play-btn").find("span").toggleClass("glyphicon-play");
+    $("#play-btn").find("span").toggleClass("glyphicon-stop");
+  }
+
+  // Build click queue with click times in s.
+  function buildQueue() {
+    var i = 0;
+    var t = 0;
+    tempos.forEach(function(tempo) {
+      period = 60 / tempo;
+      var j = 0;
+      while (j < (bars[i] * 4)) {
+        queue.push(round3(t));
+        t += period;
+        j++;
+      }
+      i++;
+    });
+  }
+
+  // Init queue.
+  function initQueue() {
+    queue.forEach(function(t) {
+      scheduleClick(t);
+    });
+    tLast = queue[queue.length - 1] * 1000;
+    timer = setTimeout(stop, tLast + 100);
+  }
+
+  // Schedule a click at time t.
+  function scheduleClick(t) {
+    var osc = audioCtx.createOscillator();
+    osc.connect(audioCtx.destination);
+    osc.frequency.value = clickFrequency;
+    osc.start(t);
+    osc.stop(t + clickDuration);
+  }
+
+  // Round to 3 decimal places.
+  function round3(num) {
+    return Math.round(num * 1000) / 1000;
   }
 
   // Define add row button behavior.
