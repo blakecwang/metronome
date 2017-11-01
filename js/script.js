@@ -1,8 +1,8 @@
 // Execute this script once jQuery has loaded.
 $(function() {
   // Set values for click frequency and duration.
-  const clickFrequency = 880;
-  const clickDuration = 0.05;
+  const clickFrequency = 1396.91;
+  const clickDuration = 0.01;
 
   // Initialize global variables.
   var audioCtx, queue, tempos, bars, timer, index, interval;
@@ -133,8 +133,12 @@ $(function() {
   // Schedule a click at time t.
   function scheduleClick(t) {
     var osc = audioCtx.createOscillator();
-    osc.connect(audioCtx.destination);
+//    osc.type = "sine";
+//    osc.type = "triangle";
+//    osc.type = "sawtooth";
+    osc.type = "square";
     osc.frequency.value = clickFrequency;
+    osc.connect(audioCtx.destination);
     osc.start(t);
     osc.stop(t + clickDuration);
   }
